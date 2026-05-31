@@ -1,0 +1,28 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+  release:
+    types:
+      - published
+
+jobs:
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: swift build
+      - name: Package app
+        run: Scripts/package_app.sh
+      - name: Archive app
+        run: Scripts/make_release_zip.sh "${GITHUB_REF_NAME#v}"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MacDisplay-macOS
+          path: dist/*.zip
